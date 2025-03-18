@@ -1,0 +1,57 @@
+import streamlit as st
+import smtplib
+from email.mime.text import MIMEText
+
+def send_email(sender_email, comment, recipient_email, smtp_user, smtp_pass):
+    """
+    Sende eine E-Mail mit den uebergebenen Informationen.
+    :param sender_email: Absender-E-Mail (vom Formular eingegeben)
+    :param comment: Kommentartext (vom Formular eingegeben)
+    :param recipient_email: Empfaenger-E-Mail (sa.ho@sunrise.ch)
+    :param smtp_user: Benutzername fuer den SMTP-Login
+    :param smtp_pass: Passwort fuer den SMTP-Login
+    """
+    # E-Mail-Inhalt erstellen
+    subject = "Neue Formular-Eingabe"
+    body = f"E-Mail-Adresse: {sender_email}\nKommentar:\n{comment}"
+    
+    msg = MIMEText(body)
+    msg['Subject'] = subject
+    msg['From'] = sender_email
+    msg['To'] = recipient_email
+    
+    # SMTP-Server verbinden und E-Mail versenden
+    try:
+        # Beispiel: Gmail SMTP-Server
+        server = smtplib.SMTP("smtp.gmail.com", 587)
+        server.starttls()
+        server.login(smtp_user, smtp_pass)
+        server.sendmail(sender_email, recipient_email, msg.as_string())
+        server.quit()
+        return True
+    except Exception as e:
+        print("Fehler beim Versenden der E-Mail:", e)
+        return False
+
+def main():
+    st.title("Kontaktformular")
+    st.write("Bitte fuelle das folgende Formular aus, um eine Nachricht zu senden.")
+    
+    with st.form("contact_form"):
+        email = st.text_input("Deine E-Mail-Adresse")
+        comment = st.text_area("Kommentar")
+        submitted = st.form_submit_button("Senden")
+        
+        if submitted:
+            # Hier muessen noch die echten Login-Daten und Empfaengeradresse eingetragen werden
+            smtp_user = "DEIN_SMTP_BENUTZERNAME"
+            smtp_pass = "DEIN_SMTP_PASSWORT"
+            recipient_email = "PRIVATE_EMPFAENGER_ADRESSE@example.com"
+            
+            if send_email(email, comment, recipient_email, smtp_user, smtp_pass):
+                st.success("Vielen Dank! Deine Nachricht wurde erfolgreich gesendet.")
+            else:
+                st.error("Fehler beim Versenden der Nachricht. Bitte versuche es spaeter erneut.")
+
+if __name__ == "__main__":
+    main()
